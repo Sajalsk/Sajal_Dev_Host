@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" fill="none">
+  <rect width="800" height="480" fill="#0b1410"/>
+  <rect x="24" y="24" width="752" height="432" rx="12" fill="#0f1f18" stroke="#1a3d2e" stroke-width="1"/>
+  <rect x="48" y="48" width="200" height="28" rx="6" fill="#143528"/>
+  <text x="64" y="68" fill="#6ee7b7" font-family="system-ui,sans-serif" font-size="13" font-weight="600">Petwell · Pipeline</text>
+  <rect x="48" y="96" width="140" height="80" rx="8" fill="#122820" stroke="#1f4d38" stroke-width="1"/>
+  <text x="68" y="122" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="10">SFTP Upload</text>
+  <text x="68" y="158" fill="#6ee7b7" font-family="system-ui,sans-serif" font-size="22" font-weight="700">1,284</text>
+  <rect x="208" y="96" width="140" height="80" rx="8" fill="#122820" stroke="#1f4d38" stroke-width="1"/>
+  <text x="228" y="122" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="10">Validated</text>
+  <text x="228" y="158" fill="#6ee7b7" font-family="system-ui,sans-serif" font-size="22" font-weight="700">1,241</text>
+  <rect x="368" y="96" width="140" height="80" rx="8" fill="#122820" stroke="#1f4d38" stroke-width="1"/>
+  <text x="388" y="122" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="10">PDF Reports</text>
+  <text x="388" y="158" fill="#6ee7b7" font-family="system-ui,sans-serif" font-size="22" font-weight="700">1,198</text>
+  <rect x="528" y="96" width="224" height="80" rx="8" fill="#122820" stroke="#1f4d38" stroke-width="1"/>
+  <text x="548" y="122" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="10">Emails Sent</text>
+  <text x="548" y="158" fill="#6ee7b7" font-family="system-ui,sans-serif" font-size="22" font-weight="700">1,198</text>
+  <rect x="48" y="200" width="704" height="220" rx="8" fill="#0a1812" stroke="#1a3d2e" stroke-width="1"/>
+  <text x="68" y="228" fill="#64748b" font-family="system-ui,sans-serif" font-size="11">Cron ingestion · last 7 days</text>
+  <polyline points="80,380 160,340 240,350 320,300 400,310 480,260 560,270 640,220 720,200" stroke="#6ee7b7" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <polyline points="80,380 160,340 240,350 320,300 400,310 480,260 560,270 640,220 720,200 720,400 80,400" fill="url(#petGrad)" opacity="0.25"/>
+  <defs>
+    <linearGradient id="petGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6ee7b7"/>
+      <stop offset="100%" stop-color="#6ee7b7" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <circle cx="720" cy="200" r="5" fill="#6ee7b7"/>
+</svg>

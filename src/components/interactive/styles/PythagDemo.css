@@ -1,0 +1,90 @@
+.pythag-demo {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(147, 197, 253, 0.2);
+}
+
+.pythag-demo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 12px;
+}
+
+.pythag-demo-status {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.pythag-demo-status.live {
+  color: #4ade80;
+}
+
+.pythag-demo-note {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.pythag-demo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.pythag-metric {
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pythag-metric-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.pythag-metric-top strong {
+  color: #93c5fd;
+}
+
+.pythag-metric-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.pythag-metric-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22d3ee, #93c5fd);
+  border-radius: inherit;
+  transition: width 0.8s ease;
+}
+
+.pythag-demo-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 80px;
+  padding-top: 8px;
+}
+
+.pythag-chart-bar {
+  flex: 1;
+  min-width: 6px;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, #93c5fd, rgba(147, 197, 253, 0.2));
+  transition: height 0.8s ease;
+}
+
+@media (max-width: 500px) {
+  .pythag-demo-grid {
+    grid-template-columns: 1fr;
+  }
+}

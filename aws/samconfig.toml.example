@@ -1,0 +1,10 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "sajal-portfolio"
+resolve_s3 = true
+s3_prefix = "sajal-portfolio"
+region = "ap-south-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "OwnerEmail=\"sajalsk247@gmail.com\" FromEmail=\"sajalsk247@gmail.com\" AllowedOrigin=\"http://localhost:5173\" ProjectName=\"sajal-portfolio\""

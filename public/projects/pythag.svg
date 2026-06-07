@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" fill="none">
+  <rect width="800" height="480" fill="#080c14"/>
+  <rect x="24" y="24" width="752" height="432" rx="12" fill="#0c1525" stroke="#1e3a5f" stroke-width="1"/>
+  <rect x="48" y="48" width="48" height="48" rx="8" fill="#10243f"/>
+  <text x="112" y="72" fill="#93c5fd" font-family="system-ui,sans-serif" font-size="14" font-weight="600">Pythag Monitor</text>
+  <text x="112" y="90" fill="#64748b" font-family="system-ui,sans-serif" font-size="11">Cell Monitor SaaS · Live</text>
+  <circle cx="720" cy="72" r="6" fill="#22c55e"/>
+  <text x="660" y="76" fill="#22c55e" font-family="system-ui,sans-serif" font-size="10">99.9% uptime</text>
+  <rect x="48" y="112" width="160" height="72" rx="8" fill="#0f1d33" stroke="#1e3a5f"/>
+  <text x="64" y="136" fill="#64748b" font-family="system-ui,sans-serif" font-size="10">Latency</text>
+  <text x="64" y="168" fill="#93c5fd" font-family="system-ui,sans-serif" font-size="24" font-weight="700">87ms</text>
+  <rect x="224" y="112" width="160" height="72" rx="8" fill="#0f1d33" stroke="#1e3a5f"/>
+  <text x="240" y="136" fill="#64748b" font-family="system-ui,sans-serif" font-size="10">Active cells</text>
+  <text x="240" y="168" fill="#93c5fd" font-family="system-ui,sans-serif" font-size="24" font-weight="700">2,847</text>
+  <rect x="400" y="112" width="160" height="72" rx="8" fill="#0f1d33" stroke="#1e3a5f"/>
+  <text x="416" y="136" fill="#64748b" font-family="system-ui,sans-serif" font-size="10">Engagement</text>
+  <text x="416" y="168" fill="#93c5fd" font-family="system-ui,sans-serif" font-size="24" font-weight="700">+25%</text>
+  <rect x="576" y="112" width="176" height="72" rx="8" fill="#0f1d33" stroke="#1e3a5f"/>
+  <text x="592" y="136" fill="#64748b" font-family="system-ui,sans-serif" font-size="10">API failures</text>
+  <text x="592" y="168" fill="#93c5fd" font-family="system-ui,sans-serif" font-size="24" font-weight="700">-60%</text>
+  <rect x="48" y="204" width="480" height="216" rx="8" fill="#0a1220" stroke="#1e3a5f"/>
+  <text x="68" y="232" fill="#64748b" font-family="system-ui,sans-serif" font-size="11">Real-time throughput (WebSocket)</text>
+  <polyline points="68,380 148,360 228,340 308,320 388,300 468,280 508,260" stroke="#60a5fa" stroke-width="2" fill="none"/>
+  <polyline points="68,400 148,390 228,370 308,360 388,340 468,330 508,310" stroke="#a78bfa" stroke-width="2" fill="none"/>
+  <rect x="544" y="204" width="208" height="100" rx="8" fill="#0a1220" stroke="#1e3a5f"/>
+  <text x="564" y="232" fill="#64748b" font-family="system-ui,sans-serif" font-size="10">Alerts</text>
+  <rect x="564" y="244" width="168" height="8" rx="4" fill="#1e293b"/>
+  <rect x="564" y="244" width="120" height="8" rx="4" fill="#93c5fd"/>
+  <rect x="544" y="320" width="208" height="100" rx="8" fill="#0a1220" stroke="#1e3a5f"/>
+  <text x="564" y="348" fill="#64748b" font-family="system-ui,sans-serif" font-size="10">Regions</text>
+  <text x="564" y="378" fill="#e2e8f0" font-family="system-ui,sans-serif" font-size="12">APAC · EU · US-East</text>
+</svg>

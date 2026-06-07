@@ -1,0 +1,321 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Portfolio serverless backend — API Gateway, Lambda, DynamoDB, SQS, SES, S3, CloudFront
+
+Parameters:
+  OwnerEmail:
+    Type: String
+    Description: Email address that receives recruiter form notifications
+    Default: sajalsk247@gmail.com
+  FromEmail:
+    Type: String
+    Description: Verified SES sender identity (can be same as OwnerEmail in sandbox)
+    Default: sajalsk247@gmail.com
+  AllowedOrigin:
+    Type: String
+    Description: CORS origin for the frontend (use * for local experiments only)
+    Default: "*"
+  ProjectName:
+    Type: String
+    Default: sajal-portfolio
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Architectures:
+      - x86_64
+    Timeout: 30
+    MemorySize: 256
+    Tracing: Active
+
+Resources:
+  PortfolioApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "${ProjectName}-api"
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type'"
+        AllowOrigin: !Sub "'${AllowedOrigin}'"
+      TracingEnabled: true
+
+  ContactTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${ProjectName}-contacts"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+  AnalyticsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${ProjectName}-analytics"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+
+  RateLimitTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${ProjectName}-rate-limits"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  ContactDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${ProjectName}-contact-dlq"
+      MessageRetentionPeriod: 1209600
+
+  ContactQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${ProjectName}-contact-queue"
+      VisibilityTimeout: 60
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt ContactDLQ.Arn
+        maxReceiveCount: 3
+
+  ContactApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${ProjectName}-contact-api"
+      CodeUri: src/contact-api/
+      Handler: handler.handler
+      Description: Accept recruiter form submissions, persist to DynamoDB, enqueue email job
+      Environment:
+        Variables:
+          CONTACT_TABLE: !Ref ContactTable
+          RATE_LIMIT_TABLE: !Ref RateLimitTable
+          CONTACT_QUEUE_URL: !Ref ContactQueue
+          ALLOWED_ORIGIN: !Ref AllowedOrigin
+          RATE_LIMIT_PER_HOUR: "5"
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ContactTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RateLimitTable
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt ContactQueue.QueueName
+      Events:
+        ContactPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PortfolioApi
+            Path: /contact
+            Method: POST
+      Metadata:
+        BuildMethod: esbuild
+        BuildProperties:
+          Minify: true
+          Target: es2020
+          Sourcemap: true
+          EntryPoints:
+            - handler.ts
+
+  EmailWorkerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${ProjectName}-email-worker"
+      CodeUri: src/email-worker/
+      Handler: handler.handler
+      Description: Process SQS messages and send recruiter notifications via SES
+      Environment:
+        Variables:
+          CONTACT_TABLE: !Ref ContactTable
+          OWNER_EMAIL: !Ref OwnerEmail
+          FROM_EMAIL: !Ref FromEmail
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ContactTable
+        - SESCrudPolicy:
+            IdentityName: !Ref FromEmail
+        - SQSPollerPolicy:
+            QueueName: !GetAtt ContactQueue.QueueName
+      Events:
+        ContactQueueEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt ContactQueue.Arn
+            BatchSize: 1
+      Metadata:
+        BuildMethod: esbuild
+        BuildProperties:
+          Minify: true
+          Target: es2020
+          Sourcemap: true
+          EntryPoints:
+            - handler.ts
+
+  AnalyticsApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${ProjectName}-analytics-api"
+      CodeUri: src/analytics-api/
+      Handler: handler.handler
+      Description: Track lightweight portfolio analytics events
+      Environment:
+        Variables:
+          ANALYTICS_TABLE: !Ref AnalyticsTable
+          ALLOWED_ORIGIN: !Ref AllowedOrigin
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AnalyticsTable
+      Events:
+        AnalyticsPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PortfolioApi
+            Path: /analytics/event
+            Method: POST
+        AnalyticsStats:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PortfolioApi
+            Path: /analytics/stats
+            Method: GET
+      Metadata:
+        BuildMethod: esbuild
+        BuildProperties:
+          Minify: true
+          Target: es2020
+          Sourcemap: true
+          EntryPoints:
+            - handler.ts
+
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${ProjectName}-frontend-${AWS::AccountId}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ["*"]
+            AllowedMethods: [GET, HEAD]
+            AllowedOrigins: ["*"]
+            MaxAge: 3600
+
+  FrontendOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${ProjectName}-oac"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  FrontendDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: index.html
+        HttpVersion: http2and3
+        PriceClass: PriceClass_100
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt FrontendBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt FrontendOAC.Id
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD]
+          Compress: true
+          ForwardedValues:
+            QueryString: false
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 0
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 0
+
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowCloudFrontServicePrincipal
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "${FrontendBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${FrontendDistribution}"
+
+  AssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${ProjectName}-assets-${AWS::AccountId}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ["*"]
+            AllowedMethods: [GET, HEAD]
+            AllowedOrigins: ["*"]
+            MaxAge: 3600
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway base URL
+    Value: !Sub "https://${PortfolioApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+  ContactEndpoint:
+    Description: Recruiter form endpoint
+    Value: !Sub "https://${PortfolioApi}.execute-api.${AWS::Region}.amazonaws.com/prod/contact"
+  FrontendBucketName:
+    Description: S3 bucket for built frontend (npm run build → aws s3 sync)
+    Value: !Ref FrontendBucket
+  FrontendDistributionDomain:
+    Description: CloudFront domain for the portfolio site
+    Value: !GetAtt FrontendDistribution.DomainName
+  AssetsBucketName:
+    Description: S3 bucket for resume PDFs and static assets
+    Value: !Ref AssetsBucket
+  ContactTableName:
+    Value: !Ref ContactTable
+  AnalyticsTableName:
+    Value: !Ref AnalyticsTable
+  ContactQueueUrl:
+    Value: !Ref ContactQueue
