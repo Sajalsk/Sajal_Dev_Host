@@ -46,11 +46,11 @@ const ProjectModal = ({ projectTitle, onClose }: ProjectModalProps) => {
           <span className="project-modal-tag">{project.category}</span>
           <h2>{project.title}</h2>
           <p className="project-modal-period">{project.period}</p>
-          {project.image && (
+          {/* {project.image && (
             <div className="project-modal-shot">
               <img src={project.image} alt={`${project.title} preview`} />
             </div>
-          )}
+          )} */}
         </div>
 
         <div className="project-modal-body">

@@ -20,9 +20,9 @@ const Landing = ({ children }: PropsWithChildren) => {
               <br />
               <span>{profile.lastName}</span>
             </h1>
-            {profile.openToWork && (
+            {/* {profile.openToWork && (
               <p className="open-to-work-sub">{profile.workPreferences}</p>
-            )}
+            )} */}
           </div>
           <div className="landing-info">
             <h3>A</h3>

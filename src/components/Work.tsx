@@ -92,7 +92,7 @@ const Work = () => {
                     category={project.category}
                     accent={project.accent}
                     gradient={project.gradient}
-                    image={project.image}
+                    // image={project.image}
                   />
                 </button>
               </div>
